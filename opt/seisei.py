@@ -32,23 +32,31 @@ model_engine = "text-davinci-003"
 def generete(nyuuryoku):
 
 
+  logger.info('受付:' + nyuuryoku)
+
   prompt = nyuuryoku
 
-  response = openai.Completion.create(
-      engine=model_engine,
-      prompt=prompt,
-      max_tokens=1024,
-      n=1,
-      stop=None,
-      temperature=0.5,
-  )
+  try :
 
-  texts = ''.join([choice['text'] for choice in response.choices])
-  # print(texts)
+    response = openai.Completion.create(
+        engine=model_engine,
+        prompt=prompt,
+        max_tokens=1024,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
 
+    texts = ''.join([choice['text'] for choice in response.choices])
+    # print(texts)
 
-  print('返答')
-  print(texts)
+    print('返答')
+    print(texts)
+
+  except openai.error.ServiceUnavailableError :
+    texts = 'サーバはビジーです'
+
+  logger.info('返答:' + texts)
 
   return texts
 
@@ -77,7 +85,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sct:
         # クライアントの接続受付
         sock_cl, addr = sct.accept()
 
-        logger.info('受付')
+        # logger.info('受付')
         print('受付')
 
         # ソケットから byte 形式でデータ受信
